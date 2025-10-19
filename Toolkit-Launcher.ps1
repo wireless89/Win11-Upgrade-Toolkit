@@ -80,12 +80,12 @@ do {
       Write-Host "[Trim]"
       $mode = Read-Host "Mode: Balanced / Pro / Aggressive (default Pro)"
       if ([string]::IsNullOrWhiteSpace($mode)) { $mode="Pro" }
-      $path = Join-Path (Get-Location) "W11-Trim-Complete-V2.ps1"
-      if (!(Test-Path $path)) {
-        Write-Host "W11-Trim-Complete-V2.ps1 not found in current folder."
-      } else {
-        Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$path`" -Mode $mode"
-      }
+      $path = Join-Path $ScriptDir "W11-Trim-Complete-V2.ps1"
+			if (!(Test-Path $path)) {
+			  Write-Host "Trim script not found at: $path"
+			} else {
+			  Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$path`" -Mode $mode"
+			}
       PauseIt
     }
     "6" {
