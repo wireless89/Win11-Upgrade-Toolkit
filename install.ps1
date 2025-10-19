@@ -53,9 +53,9 @@ Write-Host ""
 # 4) File map (extend as you add files)
 $files = @(
   @{ url="$RawBase/Toolkit-Launcher.ps1";                 dst=(Join-Path $BaseDir   "Toolkit-Launcher.ps1") },
-  @{ url="$RawBase/Win11-Trim-Complete.ps1";     dst=(Join-Path $ScriptDir "W11-Trim-Complete-V2.ps1") },
-  @{ url="$RawBase/W11-Prep-AutoFix.ps1";         dst=(Join-Path $ScriptDir "W11-Prep-AutoFix.ps1") },
-  @{ url="$RawBase/PreUpgrade-W11-Bypass.ps1";    dst=(Join-Path $ScriptDir "PreUpgrade-W11-Bypass.ps1") },
+  @{ url="$RawBase/scripts/W11-Trim-Complete-V2.ps1";     dst=(Join-Path $ScriptDir "W11-Trim-Complete-V2.ps1") },
+  @{ url="$RawBase/scripts/W11-Prep-AutoFix.ps1";         dst=(Join-Path $ScriptDir "W11-Prep-AutoFix.ps1") },
+  @{ url="$RawBase/scripts/PreUpgrade-W11-Bypass.ps1";    dst=(Join-Path $ScriptDir "PreUpgrade-W11-Bypass.ps1") },
 //  @{ url="$RawBase/docs/Upgrade-Guide.md";                dst=(Join-Path $DocDir    "Upgrade-Guide.md") },
 //  @{ url="$RawBase/docs/Troubleshooting.md";              dst=(Join-Path $DocDir    "Troubleshooting.md") }
 )
