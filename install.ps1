@@ -56,8 +56,8 @@ $files = @(
   @{ url="$RawBase/scripts/W11-Trim-Complete-V2.ps1";     dst=(Join-Path $ScriptDir "W11-Trim-Complete-V2.ps1") },
   @{ url="$RawBase/scripts/W11-Prep-AutoFix.ps1";         dst=(Join-Path $ScriptDir "W11-Prep-AutoFix.ps1") },
   @{ url="$RawBase/scripts/PreUpgrade-W11-Bypass.ps1";    dst=(Join-Path $ScriptDir "PreUpgrade-W11-Bypass.ps1") },
-//  @{ url="$RawBase/docs/Upgrade-Guide.md";                dst=(Join-Path $DocDir    "Upgrade-Guide.md") },
-//  @{ url="$RawBase/docs/Troubleshooting.md";              dst=(Join-Path $DocDir    "Troubleshooting.md") }
+  @{ url="$RawBase/docs/Upgrade-Guide.md";                dst=(Join-Path $DocDir    "Upgrade-Guide.md") },
+  @{ url="$RawBase/docs/Troubleshooting.md";              dst=(Join-Path $DocDir    "Troubleshooting.md") }
 )
 
 # 5) Download files
