@@ -1,5 +1,0 @@
-Set-ExecutionPolicy -Scope Process Bypass -Force
-.\Toolkit-Launcher.ps1
-
-//Download and start Launcher in powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/wireless89/Win11-Upgrade-Toolkit/main/install.ps1 | iex"
