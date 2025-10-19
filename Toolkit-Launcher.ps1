@@ -1,7 +1,12 @@
 # Toolkit-Launcher.ps1 (ASCII only)
 # Simple TUI to run common upgrade/repair actions
 $ErrorActionPreference = "SilentlyContinue"
-function Header(){ Clear-Host; Write-Host "=== Win11 Upgrade Toolkit ===`n" }
+# function Header(){ Clear-Host; Write-Host "=== Win11 Upgrade Toolkit ===`n" }
+# Resolve base path (where the launcher sits) and scripts/docs
+$BaseDir   = Split-Path -Parent $PSCommandPath
+$ScriptDir = Join-Path $BaseDir 'scripts'
+$DocDir    = Join-Path $BaseDir 'docs'
+function Header(){ Clear-Host; Write-Host "=== Win11 Upgrade Toolkit ===`nBase: $BaseDir`n" }
 
 function PauseIt(){ Write-Host ""; Read-Host "Press ENTER to continue..." | Out-Null }
 function Admin(){ $id=[Security.Principal.WindowsIdentity]::GetCurrent(); $p=new-object Security.Principal.WindowsPrincipal($id); return $p.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) }
