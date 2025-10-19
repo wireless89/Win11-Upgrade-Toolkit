@@ -1,15 +1,15 @@
-# install.ps1  (ASCII only)
-# Win11-Upgrade-Toolkit bootstrapper: downloads files from GitHub and launches the Toolkit-Launcher.
+# install.ps1  (ASCII only)  -- always update version
+# Downloads the toolkit to C:\ProgramData\Win11UpgradeToolkit and launches the launcher.
 param(
-  [string]$User    = "wireless89",            # TODO: your GitHub username
-  [string]$Repo    = "Win11-Upgrade-Toolkit",
-  [string]$Branch  = "main",
-  [switch]$ForceUpdate,                   # re-download even if files exist
-  [switch]$NoLaunch                       # don't auto-launch the toolkit
+  [string]$User   = "<USER>",                   # <<< GitHub-Nutzername einsetzen (ohne <>)
+  [string]$Repo   = "Win11-Upgrade-Toolkit",
+  [string]$Branch = "main",
+  [switch]$NoLaunch                               # optional: nur herunterladen, nicht starten
 )
 
 $ErrorActionPreference = "SilentlyContinue"
-# 0) Elevation
+
+# --- Elevation ---
 function IsAdmin(){
   $id=[Security.Principal.WindowsIdentity]::GetCurrent()
   $p = New-Object Security.Principal.WindowsPrincipal($id)
@@ -20,37 +20,41 @@ if (-not (IsAdmin)) {
   exit
 }
 
-# 1) TLS 1.2 for GitHub
+# --- TLS for GitHub ---
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# 2) Paths
+# --- Paths ---
 $BaseDir   = "C:\ProgramData\Win11UpgradeToolkit"
 $ScriptDir = Join-Path $BaseDir "scripts"
 $DocDir    = Join-Path $BaseDir "docs"
+$LogDir    = Join-Path $BaseDir "logs"
 $RawBase   = "https://raw.githubusercontent.com/$User/$Repo/$Branch"
-$null = New-Item -ItemType Directory -Path $BaseDir,$ScriptDir,$DocDir -Force
 
-# 3) Helper: download with retries
-function Get-File($url,$dest){
-  if ((Test-Path $dest) -and (-not $ForceUpdate)) { return }
-  for($i=1;$i -le 3;$i++){
-    try{
-      Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $dest -TimeoutSec 60
-      Unblock-File -Path $dest -ErrorAction SilentlyContinue
-      return
-    } catch {
-      Start-Sleep -Seconds (2*$i)
-    }
-  }
-  throw "Download failed: $url"
-}
+# ensure dirs
+$null = New-Item -ItemType Directory -Path $BaseDir,$ScriptDir,$DocDir,$LogDir -Force
 
-Write-Host "== Win11-Upgrade-Toolkit Installer =="
-Write-Host "Repo: $User/$Repo [$Branch]"
+Write-Host "== Win11-Upgrade-Toolkit Installer (always update) =="
+Write-Host "Repo : $User/$Repo [$Branch]"
 Write-Host "Target: $BaseDir"
 Write-Host ""
 
-# 4) File map (extend as you add files)
+# --- Download helper: ALWAYS overwrite + cache-busting ---
+function Get-File($url,$dest){
+  try {
+    $noc = "?nocache=$([guid]::NewGuid().ToString())"
+    $tmp = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+    Invoke-WebRequest -UseBasicParsing -Uri ($url+$noc) -OutFile $tmp -TimeoutSec 90
+    # move with overwrite
+    if (Test-Path $dest) { Remove-Item $dest -Force -ErrorAction SilentlyContinue }
+    Move-Item $tmp $dest -Force
+    Unblock-File -Path $dest -ErrorAction SilentlyContinue
+    Write-Host ("Fetched: {0}" -f $url)
+  } catch {
+    Write-Host ("WARN : Download failed: {0} -> {1}" -f $url, $_.Exception.Message)
+  }
+}
+
+# --- File map ---
 $files = @(
   @{ url="$RawBase/Toolkit-Launcher.ps1";                 dst=(Join-Path $BaseDir   "Toolkit-Launcher.ps1") },
   @{ url="$RawBase/scripts/W11-Trim-Complete-V2.ps1";     dst=(Join-Path $ScriptDir "W11-Trim-Complete-V2.ps1") },
@@ -60,27 +64,20 @@ $files = @(
   @{ url="$RawBase/docs/Troubleshooting.md";              dst=(Join-Path $DocDir    "Troubleshooting.md") }
 )
 
-# 5) Download files
-foreach($f in $files){
-  try {
-    Write-Host ("Fetching: {0}" -f $f.url)
-    Get-File $f.url $f.dst
-  } catch {
-    Write-Host ("WARN: {0}" -f $_.Exception.Message)
-  }
-}
+# --- Download all (always update) ---
+foreach($f in $files){ Get-File $f.url $f.dst }
 
-# 6) Quick sanity
+# --- Sanity ---
 $launcher = Join-Path $BaseDir "Toolkit-Launcher.ps1"
 if (!(Test-Path $launcher)) {
-  Write-Host "ERROR: Toolkit-Launcher.ps1 missing. Check GitHub path/user/branch."
+  Write-Host "ERROR: Launcher missing at $launcher. Check Repo/Branch/User."
   exit 1
 }
 
-# 7) Launch
+# --- Launch (optional) ---
 if (-not $NoLaunch){
-  Write-Host "Launching Toolkit Launcher..."
+  Write-Host "`nLaunching Toolkit Launcher..."
   Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$launcher`""
 } else {
-  Write-Host "Install finished. Launcher at: $launcher"
+  Write-Host "`nInstalled to $BaseDir"
 }
