@@ -84,17 +84,28 @@ do {
       PauseIt
     }
     "5" {
-      Header
-      Write-Host "[Trim]"
-      $mode = Read-Host "Mode: Balanced / Pro / Aggressive (default Pro)"; if ([string]::IsNullOrWhiteSpace($mode)) { $mode="Pro" }
-      $path = Join-Path $ScriptDir "W11-Trim-Complete-V2.ps1"
-      if (!(Test-Path $path)) {
-        Write-Host "Trim script not found at: $path"
-      } else {
-        Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$path`" -Mode $mode"
-      }
-      PauseIt
-    }
+		  Header
+		  Write-Host "[Trim]"
+		  $mode = Read-Host "Mode: Balanced / Pro / Aggressive (default Pro)"; if ([string]::IsNullOrWhiteSpace($mode)) { $mode="Pro" }
+
+		  # Basisordner sicher ermitteln (auch wenn der Launcher via Start-Process oder iex gestartet wurde)
+		  $BaseDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+		  if (-not $BaseDir) { $BaseDir = "C:\ProgramData\Win11UpgradeToolkit" }
+		  $ScriptDir = Join-Path $BaseDir 'scripts'
+
+		  # Trim-Datei flexibel finden (egal wie sie genau heißt)
+		  $trim = Get-ChildItem -Path $ScriptDir -Filter 'W11-Trim-Complete-*.ps1' -ErrorAction SilentlyContinue |
+		          Select-Object -First 1 -ExpandProperty FullName
+
+		  if (-not $trim) {
+		    Write-Host "Trim script not found. Looked in: $ScriptDir"
+		    Write-Host "Files present:"; Get-ChildItem $ScriptDir | Select Name | Format-Table -AutoSize
+		  } else {
+		    Write-Host "Launching: $trim  (Mode=$mode)"
+		    Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$trim`" -Mode $mode"
+		  }
+		  PauseIt
+		}
     "6" {
       Header
       Write-Host "[Enable WinRE]"
