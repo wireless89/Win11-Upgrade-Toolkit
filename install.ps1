@@ -1,7 +1,7 @@
 # install.ps1  (ASCII only)
 # Win11-Upgrade-Toolkit bootstrapper: downloads files from GitHub and launches the Toolkit-Launcher.
 param(
-  [string]$User    = "<USER>",            # TODO: your GitHub username
+  [string]$User    = "wireless89",            # TODO: your GitHub username
   [string]$Repo    = "Win11-Upgrade-Toolkit",
   [string]$Branch  = "main",
   [switch]$ForceUpdate,                   # re-download even if files exist
